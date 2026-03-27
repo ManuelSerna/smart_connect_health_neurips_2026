@@ -1,0 +1,142 @@
+import argparse
+import json
+from vllm import LLM, SamplingParams
+from transformers import AutoProcessor
+from qwen_vl_utils import process_vision_info
+import os
+import pandas as pd
+from PIL import Image
+import torch
+from tqdm import tqdm
+
+
+all_cols = [
+    'cigarettes', # NOTE: in HPC
+    'cigars', # in progress
+    'e-cigarettes', # in progress
+    'gum', # in progress
+    'heated_tobacco',
+    'hookah',
+    'lozenges',
+    'patches',
+    'pipe_tobacco',
+    'smokeless_tobacco',
+    #'uncategorized' # not important, leave for last
+]
+
+
+parser = argparse.ArgumentParser('VLLM Qwen batched captioning')
+parser.add_argument('--column_name', required=True, type=str, choices=all_cols)
+args = parser.parse_args()
+
+col = [args.column_name]
+assert len(col) == 1
+
+DELTA = 32 # number of samples per batch, how many idxs to skip in df
+
+MAX_IM_SIDE_LEN = 1000
+MAX_ASSIGN_LEN = 854 # map the long edge to this val
+
+MAX_NEW_TOKENS=128 # {128, 200, 256}, 128 works well
+
+caption_prompt = "Describe the item(s) in the image; look out for nicotine or tobacco related products. Return the descriptions (1 sentence), flavors, text, marketing strategy (1 sentence), shapes, and colors, in a JSON list. If an attribute does not exist, return an empty string for that attribute. Be factual. Template for one item: {'item': '', 'description':'', 'flavors':'', 'marketing':'', 'shape':'', 'color':'', 'text':''}"
+model_id = "Qwen/Qwen3-VL-4B-Instruct"
+
+
+config = {
+    "task": "debug",
+    "data_labels_filepath": "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data/tobacco_1m_raw/tobacco_1m_2026.csv",
+    "results_path": "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data/debug_results",
+    "qwen_path": model_id,
+}
+
+df = pd.read_csv(config["data_labels_filepath"], index_col=0)
+df = df[df['product_type'].isin(col)].reset_index(drop=True)
+
+out_filepath = os.path.join(config["results_path"], f"res_qwen3vl_nodist_{col[0]}.json")
+inter_filepath = os.path.join(config["results_path"], f"inter_qwen3vl_nodist_{col[0]}.json")
+
+def write2json(write_path, data):
+    with open(write_path, 'w') as file:
+        file.write(json.dumps(data, indent=4))
+
+
+# 1. Initialize the model
+# For 48GiB VRAM, you can use FP16 or FP8.
+# Use trust_remote_code=True for Qwen3 series support.
+llm = LLM(
+    model=model_id,
+    trust_remote_code=True,
+    dtype="float16",
+    download_dir="/home/mserna/.cache/huggingface/hub",
+    gpu_memory_utilization=0.8, # Reserve space for KV cache
+    max_model_len=8196,          # Adjust based on expected output length
+    limit_mm_per_prompt={"image": 1},
+    enforce_eager=True
+    #vllm_config={"torch_compile": False}
+)
+
+# 2. Set sampling parameters
+sampling_params = SamplingParams(
+    temperature=0.2,
+    max_tokens=256,
+    stop_token_ids=[]
+)
+
+# 3. Prepare the batch of images
+# Each entry is a list of messages following the OpenAI-like format
+processor = AutoProcessor.from_pretrained(model_id)
+
+# TODO: if the scripts go down, read the inter file and resume...
+out_data = []
+uids = []
+
+def prepare_batch(paths):
+    batch_inputs = []
+    for path in paths:
+        messages = [{
+            "role": "user",
+            "content": [
+                {"type": "image", "image": path},
+                {"type": "text", "text": caption_prompt},
+            ]
+        }]
+        # Format the prompt using the model's chat template
+        prompt = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+
+        # Prepare multi-modal data
+        # Note: vLLM expects a dictionary mapping modality name to data
+        image_inputs, _ = process_vision_info(messages)
+
+        batch_inputs.append({
+            "prompt": prompt,
+            "multi_modal_data": {"image": image_inputs}
+        })
+    return batch_inputs
+
+# Run inference
+start = 0
+for ref_idx in tqdm(range(start, len(df), DELTA)):
+    #print(f"start={start}...ref_idx={ref_idx},DELTA={DELTA}...N={len(df)}")
+    batch_filepaths = []
+    for d in range(DELTA):
+        row = df.iloc[ref_idx+d]
+        uids.append(int(row.uid))
+        batch_filepaths.append(row.filepath)
+
+    model_inputs = prepare_batch(batch_filepaths)
+    outputs = llm.generate(model_inputs, sampling_params=sampling_params)
+
+    for d in range(DELTA):
+        out_text = outputs[d].outputs[0].text
+        out_data.append({
+            "filepath": batch_filepaths[d],
+            "uid": uids[d], # important to trace back to other sample info
+            "caption": out_text,
+        })
+
+    # Write intermediate results to file
+    write2json(inter_filepath, out_data)
+
+# Write final list to file
+write2json(out_filepath, out_data)

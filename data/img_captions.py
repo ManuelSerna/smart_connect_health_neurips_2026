@@ -16,6 +16,8 @@ caption_prompt = "Describe the item(s) in the image; look out for nicotine or to
 
 MAX_NEW_TOKENS=128 # {128, 200, 256}, 128 works well
 
+DELTA = 64
+
 MAX_IM_SIDE_LEN = 1000
 MAX_ASSIGN_LEN = 854 # map the long edge to this val
 
@@ -161,6 +163,105 @@ def inference_qwen(config:dict):
 
     print(f"\n[INFO] Files that could not be read: {bad}")
     write2json(out_data, out_data)
+
+
+###############################################################
+# Batched code
+###############################################################
+def prep_one_sample(row_idx, df):
+    row = df.iloc[row_idx]
+    in_filepath = row["filepath"]
+    current_data = {
+        "img_filepath": row["filepath"],
+        "uid": int(row["uid"]),
+        "tobacco_type": row["tobacco_type"],
+        "product_type": row["product_type"],
+        "product_name": row["product_name"],
+    }
+
+    try:
+        img = prep_qwen_img(in_filepath)
+    except Exception as e:
+        print(f"An error occurred while opening the image {in_filepath}: {e}")
+        # bad += 1
+        #current_data["description"] = "-1"
+        #out_data.append(current_data)
+        return None
+
+    # Messages containing multiple images and a text query
+    current_messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "image", "image": img},
+                {"type": "text", "text": caption_prompt},
+            ],
+        }
+    ]
+
+    return current_messages, current_data
+
+
+def inference_qwen_batched(config: dict):
+    """
+    Qwen3 VL model for image batch inference
+
+    :param config: Description
+    """
+    batched = True
+
+    # Read data
+    df = pd.read_csv(config["data_labels_filepath"], index_col=0)
+
+    print(f"[Qwen3-VL] Using Qwen3-VL model for VLM inference on n={len(df)}.")
+
+    model, processor = get_qwen3vl_model(config)
+    if batched:
+        processor.tokenizer.padding_size = "left"
+    img_extract_prompt = caption_prompt
+    print(f"[Qwen3-VL] Prompt:\n\t> `{img_extract_prompt}`")
+
+    out_path = os.path.join(config["results_path"], f"res_qwen3vl_nodist.json")
+    inter_filepath = os.path.join(config["results_path"], f"inter_qwen3vl_nodist.json")
+    out_data = []
+    bad = 0
+
+    for row_idx in tqdm(range(0, len(df), DELTA)):
+        messages = []
+        data_batch = []
+        for d in range(DELTA):
+            current_messages, current_data = prep_one_sample(row_idx, df)
+            messages.append(current_messages)
+            data_batch.append(current_data)
+
+        # Preparation for inference
+        inputs = processor.apply_chat_template(
+            messages,
+            tokenize=True,
+            add_generation_prompt=True,
+            return_dict=True,
+            return_tensors="pt",
+            padding=True
+        )
+        inputs = inputs.to(model.device)
+
+        # Inference: Generation of the output
+        generated_ids = model.generate(**inputs, max_new_tokens=MAX_NEW_TOKENS)
+        generated_ids_trimmed = [
+            out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
+        ]
+        output_text = processor.batch_decode(
+            generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
+        )
+
+        for d in range(DELTA):
+            data_batch[d]["description"] = output_text[d]
+            out_data.append(data_batch[d])
+
+        write2json(inter_filepath, out_data)
+
+    print(f"\n[INFO] Files that could not be read: {bad}")
+    write2json(out_path, out_data)
 
 
 ###############################################################
@@ -346,7 +447,6 @@ def setup_dist(args):
 
 
 def main_dist(args):
-
     msize = "4B"
 
     if args.debug:
@@ -357,7 +457,8 @@ def main_dist(args):
             "results_path": "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data/debug_results",
             "qwen_path": f"Qwen/Qwen3-VL-{msize}-Instruct", 
         }
-        inference_qwen(config)
+        #inference_qwen(config)
+        inference_qwen_batched(config)
     else:
         print("[INFO] Setting script to run inference in a distributed environment!")
 
