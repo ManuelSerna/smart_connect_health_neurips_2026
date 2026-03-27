@@ -1,0 +1,344 @@
+[
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/pipe_tobacco/peterson/Peterson_Balkan_24.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "pipe_tobacco",
+        "product_name": "peterson",
+        "description": [
+            "[\n  {\n    \"item\": \"Peterson Balkan Delight pipe tobacco\",\n    \"description\": \"A round tin of Peterson pipe tobacco with a green and gold label, featuring a health warning in Czech.\",\n    \"flavors\": \"Balkan Delight\",\n    \"marketing\": \"Uses a classic design with a health warning to promote cessation resources, targeting pipe tobacco users.\",\n    \"shape\": \"Round tin\",\n    \"color\": \"Green, gold, and white with red accents\",\n    \"text\": \"Peterson of Dublin, EST. 1865, Balkan Delight, Kou\u0159en\u00ed zab"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/pipe_tobacco/cornell_and_diehl/Cornell_and_Diehl_Golden_Ash_58.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "pipe_tobacco",
+        "product_name": "cornell_and_diehl",
+        "description": [
+            "[\n    {\n        \"item\": \"Cornell & Diehl Comfort cigarette tin\",\n        \"description\": \"A cylindrical tin with decorative floral patterns and a white lid, containing cigarettes from the Serenity Series.\",\n        \"flavors\": \"\",\n        \"marketing\": \"Uses a calming, serene aesthetic to appeal to consumers seeking relaxation.\",\n        \"shape\": \"Cylindrical\",\n        \"color\": \"White and teal\",\n        \"text\": \"CORNELL & DIEHL COMFORT \u2022 Serenity Series\"\n    }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/cigars/davidoff/Davidoff_Winston_Churchill_518.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "cigars",
+        "product_name": "davidoff",
+        "description": [
+            "[\n  {\n    \"item\": \"Davidoff cigar\",\n    \"description\": \"A premium cigar with a dark brown wrapper and a gold and green branded label.\",\n    \"flavors\": \"\",\n    \"marketing\": \"Emphasizes luxury and craftsmanship through elegant branding and high-end packaging.\",\n    \"shape\": \"Cylindrical, with a tapered end.\",\n    \"color\": \"Dark brown wrapper, gold and green label accents.\",\n    \"text\": \"Davidoff\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/hookah/trifecta/Trifecta_Pumpkin_Somethin_474.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "hookah",
+        "product_name": "trifecta",
+        "description": [
+            "[{\"item\": \"Goodyear tire logo\", \"description\": \"A logo on the driver's racing suit, indicating tire sponsorship.\", \"flavors\": \"\", \"marketing\": \"Sponsorship branding to associate the team with Goodyear tires.\", \"shape\": \"Circular with a stylized 'G' and 'Goodyear' text.\", \"color\": \"Green and white\", \"text\": \"Goodyear\"}]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/hookah/khalil_mamoon/Khalil_Mamoon_Ira_Wood_34.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "hookah",
+        "product_name": "khalil_mamoon",
+        "description": [
+            "[\n    {\n        \"item\": \"Hookah\",\n        \"description\": \"A golden-colored hookah with ornate engraved designs and a curved stem, featuring a mouthpiece and a base for tobacco or nicotine use.\",\n        \"flavors\": \"\",\n        \"marketing\": \"Designed to appeal to users seeking luxury and aesthetic appeal with its shiny gold finish and decorative patterns.\",\n        \"shape\": \"Tall, cylindrical body with a flared base, curved stem, and a side-mounted mouthpiece.\",\n        \"color\": \"Gold with reflective metallic finish\",\n        \"text\": \"\"\n    }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/hookah/al_fakher/Al_Fakher_Mint_166.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "hookah",
+        "product_name": "al_fakher",
+        "description": [
+            "[\n  {\n    \"item\": \"Al Fakher Mint Frost Flavour tobacco product\",\n    \"description\": \"Stack of four black boxes of Al Fakher Mint Frost Flavour tobacco product, labeled as wholesale packs.\",\n    \"flavors\": \"Mint Frost\",\n    \"marketing\": \"Uses a premium brand name and mint imagery to convey freshness and quality, targeting wholesale buyers.\",\n    \"shape\": \"Rectangular boxes stacked vertically\",\n    \"color\": \"Black with green and white accents\",\n    \"text\": \"AL FAKHER, \u0627\u0644\u0645\u064f\u0641\u064e\u0643\u064e\u0651\u0631, MINT FROST FLAV"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/hookah/tangiers/Tangiers_Tropical_Revenge_176.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "hookah",
+        "product_name": "tangiers",
+        "description": [
+            "[\n    {\n        \"item\": \"Tangiers Coconut Hookah Tobacco\",\n        \"description\": \"A tobacco product in a coconut-themed packaging design with a split coconut and green leaves.\",\n        \"flavors\": \"Coconut\",\n        \"marketing\": \"Uses tropical imagery and a green-yellow color scheme to evoke freshness and natural flavor.\",\n        \"shape\": \"Circular label with a split coconut graphic and leaf accents.\",\n        \"color\": \"Green, yellow, and brown with white interior of coconut.\",\n        \"text\": \"8 TANGIERS Hookah Tobacco Coconut\"\n    }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/hookah/tangiers/Tangiers_Lime_243.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "hookah",
+        "product_name": "tangiers",
+        "description": [
+            "[\n  {\n    \"item\": \"beaded bracelet\",\n    \"description\": \"A handcrafted beaded bracelet worn on a wrist, featuring a pattern of orange, green, and white beads.\",\n    \"flavors\": \"\",\n    \"marketing\": \"\",\n    \"shape\": \"circular\",\n    \"color\": \"orange, green, white\",\n    \"text\": \"\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/cigars/davidoff/Davidoff_Griffins_32.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "cigars",
+        "product_name": "davidoff",
+        "description": [
+            "[\n  {\n    \"item\": \"cigar\",\n    \"description\": \"A single, whole cigar with a circular band around the middle.\",\n    \"flavors\": \"\",\n    \"marketing\": \"The band features a logo with a red maple leaf, suggesting a brand identity possibly tied to Canadian heritage or a specific flavor profile.\",\n    \"shape\": \"Cylindrical with slightly tapered ends.\",\n    \"color\": \"Brown tobacco wrapper with a black and red band.\",\n    \"text\": \"THE GRIFFIN\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/cigars/romeo_y_julieta/Romeo_y_Julieta_Reserve_126.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "cigars",
+        "product_name": "romeo_y_julieta",
+        "description": [
+            "[\n  {\n    \"item\": \"Cigar\",\n    \"description\": \"A single, unlit cigar with a dark brown wrapper and a silver band featuring text.\",\n    \"flavors\": \"\",\n    \"marketing\": \"Targeted at connoisseurs and smokers who appreciate premium tobacco products.\",\n    \"shape\": \"Cylindrical, with tapered ends.\",\n    \"color\": \"Dark brown wrapper with silver band.\",\n    \"text\": \"Cohiba\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/nicotine_replacement_therapy/patches/leader/Leader_Nicotine_Gum_Ice_Mint_4mg_112.jpg",
+        "tobacco_type": "nicotine_replacement_therapy",
+        "product_type": "patches",
+        "product_name": "leader",
+        "description": [
+            "[\n    {\n        \"item\": \"Equate Nicotine Gum\",\n        \"description\": \"Sugar-free, coated nicotine gum designed for individuals who smoke their first cigarette within 30 minutes of waking up, with a 4 mg nicotine content.\",\n        \"flavors\": \"Ice Mint\",\n        \"marketing\": \"Compares its active ingredient to Nicorette gum and targets users who smoke early in the morning.\",\n        \"shape\": \"Rectangular\",\n        \"color\": \"Blue, gray, red, and white\",\n        \"text\": \"COATED Nicotine Gum, 4 mg (Nicotine), ICE MINT FL"
+        ]
+    },
+    {
+        "img_filepath": "dataset/nicotine_replacement_therapy/patches/blue_point/Blue_Point_Nicotine_Patch_Step_1_88.jpg",
+        "tobacco_type": "nicotine_replacement_therapy",
+        "product_type": "patches",
+        "product_name": "blue_point",
+        "description": [
+            "[\n  {\n    \"item\": \"Nicotine patch\",\n    \"description\": \"A transparent, adhesive nicotine patch designed for smoking cessation.\",\n    \"flavors\": \"\",\n    \"marketing\": \"The patch is marketed as a step-by-step solution for smokers, with Step 1 targeting those who smoke more than 10 cigarettes a day.\",\n    \"shape\": \"Square with a slightly curved, glossy surface\",\n    \"color\": \"Transparent with a blue gradient background and teal and dark blue text boxes\",\n    \"text\": \"STEP 1, 21mg, IF YOU SMOKE MORE THAN 10 CIG"
+        ]
+    },
+    {
+        "img_filepath": "dataset/nicotine_replacement_therapy/gum/members_mark/Members_Mark_Fruit_4mg_249.jpg",
+        "tobacco_type": "nicotine_replacement_therapy",
+        "product_type": "gum",
+        "product_name": "members_mark",
+        "description": [
+            "[\n    {\n        \"item\": \"strawberry smoothie\",\n        \"description\": \"Three bowls of pink strawberry smoothie, each topped with a whole strawberry, arranged on a white wooden surface with a teal towel and spoons nearby.\",\n        \"flavors\": \"strawberry\",\n        \"marketing\": \"The image uses a clean, appetizing presentation to highlight the freshness and appeal of the smoothie, suggesting homemade or healthy indulgence.\",\n        \"shape\": \"circular bowls\",\n        \"color\": \"pink smoothie, teal towel, white wooden surface, metallic spoons\",\n        \"text\": \"Baking With"
+        ]
+    },
+    {
+        "img_filepath": "dataset/nicotine_replacement_therapy/gum/lucy/Lucy_Nicotine_Mint_6mg_48.jpg",
+        "tobacco_type": "nicotine_replacement_therapy",
+        "product_type": "gum",
+        "product_name": "lucy",
+        "description": [
+            "[\n  {\n    \"item\": \"Nicotine Pouches\",\n    \"description\": \"A circular container of nicotine pouches formulated in Sweden with a 3mg nicotine strength.\",\n    \"flavors\": \"Ice Mint\",\n    \"marketing\": \"Uses a clean, modern design with a Scandinavian flag and bold typography to appeal to health-conscious or style-oriented consumers.\",\n    \"shape\": \"Circular\",\n    \"color\": \"Black, teal, and white\",\n    \"text\": \"FORMULATED IN SWEDEN, NICOTINE POUCHES, Thursday, ICE MINT, 3MG, WARNING: This product contains"
+        ]
+    },
+    {
+        "img_filepath": "dataset/nicotine_replacement_therapy/lozenges/heb/HEB_Nicotine_Lozenges_2mg_16.jpg",
+        "tobacco_type": "nicotine_replacement_therapy",
+        "product_type": "lozenges",
+        "product_name": "heb",
+        "description": [
+            "[\n  {\n    \"item\": \"Etos Nicotine Mint 2 mg Zuijtablet\",\n    \"description\": \"A nicotine replacement tablet designed to help smokers quit by providing 2 mg of nicotine per tablet.\",\n    \"flavors\": \"Mint\",\n    \"marketing\": \"Targets smokers looking to quit by offering a controlled nicotine dose in a convenient tablet form.\",\n    \"shape\": \"Circular\",\n    \"color\": \"White\",\n    \"text\": \"Etos Nicotine mint 2 mg zuijtablet. Elke zuijtablet bevat 2 mg nicotine (als nicotineresinaat"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/heated_tobacco/ismod/ISMOD_Gold_464.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "heated_tobacco",
+        "product_name": "ismod",
+        "description": [
+            "[\n    {\n        \"item\": \"Ensure\",\n        \"description\": \"A nutritional supplement powder in a box, designed to improve muscle strength in adults aged 60+ with malnutrition risk.\",\n        \"flavors\": \"Vanilla\",\n        \"marketing\": \"Promotes muscle strength improvement in 90 days with a clinically proven badge and a 'Scan & Earn' incentive.\",\n        \"shape\": \"Rectangular box with a slightly curved top edge\",\n        \"color\": \"Blue, gold, and white with a splash of vanilla cream design\",\n        \"text\": \"Clinically Proven, Improves Muscle Strength in "
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/heated_tobacco/evo/EVO_Cobalt_65.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "heated_tobacco",
+        "product_name": "evo",
+        "description": [
+            "[{\"item\": \"Keen hiking boot\", \"description\": \"A high-top hiking boot with a mesh upper and rugged outsole, designed for outdoor activities.\", \"flavors\": \"\", \"marketing\": \"Targeted at outdoor enthusiasts seeking durable and comfortable footwear.\", \"shape\": \"High-top with lacing system and reinforced toe cap.\", \"color\": \"Gray, black, and light gray with blue accents.\", \"text\": \"KEEN, GORE-TEX, CONNECTFIT\"}]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/heated_tobacco/heets/HEETS_Creations_Twuilight_447.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "heated_tobacco",
+        "product_name": "heets",
+        "description": [
+            "[{\"item\": \"private jet\", \"description\": \"A white private jet flying above clouds during sunset.\", \"flavors\": \"\", \"marketing\": \"\", \"shape\": \"streamlined fuselage with swept wings and T-tail\", \"color\": \"white with dark accents\", \"text\": \"\"}]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/e-cigarettes/flum/Flum_Tobacco_37.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "e-cigarettes",
+        "product_name": "flum",
+        "description": [
+            "[\n  {\n    \"item\": \"GiMi vape pen\",\n    \"description\": \"A compact, sleek, and elegant mirror-design vape pen with hidden screen indicator and multiple flavor options.\",\n    \"flavors\": \"Cool Mint, Peach Icy, Mango Icy, Blue Razz, Grape Icy, Cherry Lemon, Virginia Tobacco, Pineapple Puff, Coconut Mama, Spearmint\",\n    \"marketing\": \"Promotes compact design, more puffs, and elegant mirror aesthetics to appeal to modern users.\",\n    \"shape\": \"Rectangular with rounded edges and a tapered top\",\n    \"color\": \"Available in mint"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/e-cigarettes/mi-pod/Mi-Pod_BC5000_43.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "e-cigarettes",
+        "product_name": "mi-pod",
+        "description": [
+            "[\n  {\n    \"item\": \"ELF BAR BC5000\",\n    \"description\": \"A disposable vape device designed for nicotine delivery.\",\n    \"flavors\": \"Watermelon Bubblegum\",\n    \"marketing\": \"Uses a gradient color scheme and bold branding to appeal to younger consumers.\",\n    \"shape\": \"Rectangular with a rounded top and bottom, featuring a cylindrical mouthpiece.\",\n    \"color\": \"Gradient from light pink to red.\",\n    \"text\": \"ELF BAR BC5000 WATERMELON BUBBLEGUM\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/e-cigarettes/lost_mary/Lost_Mary_MO20000_25.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "e-cigarettes",
+        "product_name": "lost_mary",
+        "description": [
+            "[\n  {\n    \"item\": \"Lost Mary MO20000 e-cigarette\",\n    \"description\": \"A modern, sleek electronic cigarette with a digital display and flavor-specific design.\",\n    \"flavors\": \"Strawberry Kiwi\",\n    \"marketing\": \"Uses vibrant colors and cosmic-themed graphics to appeal to youth and highlight flavor variety.\",\n    \"shape\": \"Rectangular with rounded edges and a tapered top\",\n    \"color\": \"Red\",\n    \"text\": \"LOST MARY, MO20000, STRAWBERRY KIWI, 25W, 10"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/e-cigarettes/smok/SMOK_RPM_C_124.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "e-cigarettes",
+        "product_name": "smok",
+        "description": [
+            "[\n    {\n        \"item\": \"e-cigarette\",\n        \"description\": \"A modern electronic cigarette with a sleek design, featuring a digital display and a button for operation.\",\n        \"flavors\": \"\",\n        \"marketing\": \"Uses a dramatic purple and gold smoke background to evoke luxury and intensity.\",\n        \"shape\": \"Cylindrical with a slightly tapered top and bottom.\",\n        \"color\": \"Black, gold, and red gradient with a matte finish.\",\n        \"text\": \"SMOK, 50W, 1.0\u03a9, 3000mAh\"\n    }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/e-cigarettes/uwell/Uwell_Crown_4_290.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "e-cigarettes",
+        "product_name": "uwell",
+        "description": [
+            "[\n  {\n    \"item\": \"e-cigarette tank\",\n    \"description\": \"A metallic vape tank with a black top cap and a crown emblem on the clear glass section.\",\n    \"flavors\": \"\",\n    \"marketing\": \"Designed for vaping enthusiasts who appreciate premium, sleek aesthetics and brand recognition.\",\n    \"shape\": \"Cylindrical with a slightly tapered top and bottom, featuring a clear glass section and metallic rings.\",\n    \"color\": \"Silver metallic with black top cap and clear glass.\",\n    \"text\": \"Crown emblem engraved on the glass section.\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/smokeless_tobacco/stokers/Stokers_Fine_Cut_Natural_57.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "smokeless_tobacco",
+        "product_name": "stokers",
+        "description": [
+            "[\n  {\n    \"item\": \"Stoker's Long Cut Natural tobacco product\",\n    \"description\": \"A container of Stoker's Long Cut Natural tobacco, featuring a vintage-style label with a man's portrait and warning about health risks.\",\n    \"flavors\": \"\",\n    \"marketing\": \"Uses a nostalgic, classic branding with a portrait of a smiling man and emphasizes 'Since 1940' to evoke tradition and heritage.\",\n    \"shape\": \"Cylindrical container with a flat lid\",\n    \"color\": \"Dark blue and brown with white and gold text\",\n    \"text\": \"LONG CUT NATURAL,"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/smokeless_tobacco/red_seal/Red_Seal_Long_Cut_Natural_7.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "smokeless_tobacco",
+        "product_name": "red_seal",
+        "description": [
+            "[\n  {\n    \"item\": \"Red Seal Long Cut Natural\",\n    \"description\": \"Red Seal Long Cut Natural is a 1.5 oz. package containing 5 pieces, likely a tobacco product.\",\n    \"flavors\": \"\",\n    \"marketing\": \"The product uses a straightforward labeling approach to communicate its brand and quantity, targeting consumers seeking natural tobacco products.\",\n    \"shape\": \"\",\n    \"color\": \"Black and white\",\n    \"text\": \"Red Seal Long Cut Natural 1.5 oz., 5 pk.\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/smokeless_tobacco/longhorn/Longhorn_Mint_Pouches_196.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "smokeless_tobacco",
+        "product_name": "longhorn",
+        "description": [
+            "[\n    {\n        \"item\": \"Copenhagen Spitfree Pouches\",\n        \"description\": \"A tobacco product in pouch form, designed for smokeless use, with a warning label indicating it can cause mouth cancer.\",\n        \"flavors\": \"\",\n        \"marketing\": \"Uses bold green and black design to emphasize the 'spitfree' feature and brand identity, targeting consumers seeking smokeless tobacco alternatives.\",\n        \"shape\": \"Circular\",\n        \"color\": \"Black and green\",\n        \"text\": \"POUCHES, 18 22, Copenhagen SPITFREE, WARNING: This product can cause mouth cancer"
+        ]
+    },
+    {
+        "img_filepath": "dataset/unknown/uncategorized/unknown/Mac_Baren_Solent_321.jpg",
+        "tobacco_type": "unknown",
+        "product_type": "uncategorized",
+        "product_name": "unknown",
+        "description": [
+            "[\n    {\n        \"item\": \"\",\n        \"description\": \"\",\n        \"flavors\": \"\",\n        \"marketing\": \"\",\n        \"shape\": \"\",\n        \"color\": \"\",\n        \"text\": \"Meine ersten 3!\"\n    }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/unknown/uncategorized/unknown/2baconil_Nicotine_Patch_Step_3_156.jpg",
+        "tobacco_type": "unknown",
+        "product_type": "uncategorized",
+        "product_name": "unknown",
+        "description": [
+            "[\n  {\n    \"item\": \"Nicorette Mini Lozenge\",\n    \"description\": \"Nicotine lozenge for smoking cessation, containing 2 mg of nicotine.\",\n    \"flavors\": \"Mint\",\n    \"marketing\": \"Uses green and blue color scheme to convey freshness and health, targeting smokers seeking nicotine replacement.\",\n    \"shape\": \"Rectangular box with a blister pack of lozenges inside.\",\n    \"color\": \"Green and blue with white text and accents.\",\n    \"text\": \"Nicorette, nicotine polacrilex lozenge, 2 mg, stop smoking aid,"
+        ]
+    },
+    {
+        "img_filepath": "dataset/unknown/uncategorized/unknown/Black__Mild_Shorts_571.jpg",
+        "tobacco_type": "unknown",
+        "product_type": "uncategorized",
+        "product_name": "unknown",
+        "description": [
+            "[{\"item\": \"black velvet shorts\", \"description\": \"A pair of black velvet shorts with a ruffled hem and a high-waisted design.\", \"flavors\": \"\", \"marketing\": \"\", \"shape\": \"high-waisted, ruffled hem\", \"color\": \"black\", \"text\": \"\"}]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/unknown/uncategorized/unknown/BATs_Neostiks_GOLD_TOBACCO_83.jpg",
+        "tobacco_type": "unknown",
+        "product_type": "uncategorized",
+        "product_name": "unknown",
+        "description": [
+            "[\n  {\n    \"item\": \"glo device\",\n    \"description\": \"A white, sleek, rectangular electronic device with a circular button and a metallic accent band, designed for nicotine delivery.\",\n    \"flavors\": \"\",\n    \"marketing\": \"Emphasizes modern, minimalist design and convenience for nicotine users.\",\n    \"shape\": \"Rectangular\",\n    \"color\": \"White with metallic accent\",\n    \"text\": \"glo\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/unknown/uncategorized/unknown/Mac_Baren_Plumcake_245.jpg",
+        "tobacco_type": "unknown",
+        "product_type": "uncategorized",
+        "product_name": "unknown",
+        "description": [
+            "[\n  {\n    \"item\": \"Sail Aromatic tobacco product\",\n    \"description\": \"A green-packaged tobacco product with a sail logo and 'Original Sicilian' text, indicating its origin.\",\n    \"flavors\": \"Aromatic\",\n    \"marketing\": \"Uses a nautical theme with a sail graphic to evoke a sense of adventure or tradition.\",\n    \"shape\": \"Rectangular\",\n    \"color\": \"Green with gold trim\",\n    \"text\": \"SAIL, AROMATIC, ORIGINAL SICILIAN\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/cigarettes/marlboro/img_157601.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "cigarettes",
+        "product_name": "marlboro",
+        "description": [
+            "[\n    {\n        \"item\": \"Cigarettes\",\n        \"description\": \"Red and white cigarette packs stacked on retail shelves with health warning labels.\",\n        \"flavors\": \"\",\n        \"marketing\": \"Uses health warnings to discourage smoking while displaying brand logos like Marlboro.\",\n        \"shape\": \"Rectangular packs with a triangular design on the front.\",\n        \"color\": \"Red and white with black text.\",\n        \"text\": \"Smoking kills\"\n    },\n    {\n        \"item\": \"Cigarettes\",\n        \"description\": \"Marlboro brand cigarette packs displayed in red and white packaging with health warnings.\",\n       "
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/cigarettes/winston/img_177813.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "cigarettes",
+        "product_name": "winston",
+        "description": [
+            "[\n  {\n    \"item\": \"ring\",\n    \"description\": \"A luxurious ring featuring a large emerald-cut blue sapphire surrounded by diamonds, set in white metal.\",\n    \"flavors\": \"\",\n    \"marketing\": \"\",\n    \"shape\": \"emerald-cut central stone, round brilliant-cut diamonds on sides\",\n    \"color\": \"deep blue sapphire, white diamonds, silver-toned metal\",\n    \"text\": \"\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/cigarettes/camel/img_231162.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "cigarettes",
+        "product_name": "camel",
+        "description": [
+            "[{\"item\": \"\", \"description\": \"\", \"flavors\": \"\", \"marketing\": \"\", \"shape\": \"\", \"color\": \"\", \"text\": \"\"}]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/cigarettes/rothmans/img_266340.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "cigarettes",
+        "product_name": "rothmans",
+        "description": [
+            "[\n    {\n        \"item\": \"Rothmans cigarette pack\",\n        \"description\": \"A white cigarette pack with a blue banner featuring the Rothmans logo and crest, and a health warning at the bottom.\",\n        \"flavors\": \"\",\n        \"marketing\": \"Emphasizes heritage with 'Exceptional Tobaccos Since 1890' and a classic design to convey tradition and quality.\",\n        \"shape\": \"Rectangular\",\n        \"color\": \"White with blue and black accents\",\n        \"text\": \"Rothmans OF LONDON, EXCEPTIONAL TOBACCOS SINCE 1890,"
+        ]
+    },
+    {
+        "img_filepath": "dataset/combustible_tobacco_product/hookah/tangiers/img_796187.jpg",
+        "tobacco_type": "combustible_tobacco_product",
+        "product_type": "hookah",
+        "product_name": "tangiers",
+        "description": [
+            "[\n  {\n    \"item\": \"Revoshi Tobacco product\",\n    \"description\": \"A tobacco product box featuring blackberries and blueberries as flavor indicators.\",\n    \"flavors\": \"Blackberry and blueberry\",\n    \"marketing\": \"Uses a vibrant purple and yellow sunburst design with fruit imagery to appeal to younger audiences.\",\n    \"shape\": \"Rectangular box\",\n    \"color\": \"Purple and yellow with blackberries and blueberries as accents\",\n    \"text\": \"REVOSHI TOBACCO, THANKS ENGLS\"\n  }\n]"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/heated_tobacco/glo/img_201848.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "heated_tobacco",
+        "product_name": "glo",
+        "description": [
+            "[\n    {\n        \"item\": \"Glo vape device and charger\",\n        \"description\": \"A black, sleek, rectangular charging case with a circular button and two cylindrical vape pens with 'glo' branding, designed for nicotine delivery.\",\n        \"flavors\": \"\",\n        \"marketing\": \"Emphasizes modern, minimalist design and portability for users seeking a discreet nicotine alternative.\",\n        \"shape\": \"Rectangular charging case with rounded edges; cylindrical vape pens with tapered ends.\",\n        \"color\": \"Black with carbon fiber texture on the case and smooth finish on the pens.\",\n        \"text\": \"glo\"\n    }\n"
+        ]
+    },
+    {
+        "img_filepath": "dataset/non-combustible_tobacco_product/smokeless_tobacco/grizzly/img_210288.jpg",
+        "tobacco_type": "non-combustible_tobacco_product",
+        "product_type": "smokeless_tobacco",
+        "product_name": "grizzly",
+        "description": [
+            "[\n  {\n    \"item\": \"Grizzly snuff tin\",\n    \"description\": \"A vintage, circular tin of snuff with a rusted, weathered appearance, featuring a roaring bear graphic and the brand name 'Grizzly'.\",\n    \"flavors\": \"Wintergreen\",\n    \"marketing\": \"Uses a rugged, outdoorsy aesthetic with a bear logo and 'EST. 1900' to evoke tradition and strength.\",\n    \"shape\": \"Circular\",\n    \"color\": \"Teal green with rust-colored edges and black/white bear graphic\",\n    \"text\": \"GRIZZLY LONG CUT"
+        ]
+    }
+]
