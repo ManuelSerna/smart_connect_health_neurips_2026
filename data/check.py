@@ -34,7 +34,8 @@ def get_qwen3vl_model(config:dict) -> tuple:
             config["qwen_path"],
             #dtype="auto",
             dtype=torch.bfloat16,
-            attn_implementation="flash_attention_2",
+            #attn_implementation="flash_attention_2",
+            attn_implementation="eager",
             device_map="auto"
         )
     elif config["task"] == "hpc":

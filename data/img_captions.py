@@ -10,26 +10,37 @@ from tqdm import tqdm
 from transformers import AutoModelForImageTextToText, AutoProcessor # get transformers == 4.57.0
 
 
-image_feature_extraction_prompts = {
-    #"basic": "Find all possible tobacco or nicotine related products, and return their names, shape, color, and any text as a JSON list.",
-    #"basic2": "Find all possible tobacco or nicotine related products. Return their description, shape, color, and a confidence score between 0.0 and 100.0 as a JSON list.",
-    "basic3": "Find the top-5 possible tobacco or nicotine related products. Return their description, shape, color, and a confidence score between 0.0 and 100.0 as a JSON list."
-}
+WORLD_SIZE = 32 # number of GPUs to use, reduce to use less cards, NOTE: this has to agree with external world size (when we run from a bash script)
+
+caption_prompt = "Describe the item(s) in the image; look out for nicotine or tobacco related products. Return the descriptions (1 sentence), flavors, text, marketing strategy (1 sentence), shapes, and colors, in a JSON list. If an attribute does not exist, return an empty string for that attribute. Be factual. Template for one item: {'item': '', 'description':'', 'flavors':'', 'marketing':'', 'shape':'', 'color':'', 'text':''}"
+
+MAX_NEW_TOKENS=128 # {128, 200, 256}, 128 works well
 
 MAX_IM_SIDE_LEN = 1000
 MAX_ASSIGN_LEN = 854 # map the long edge to this val
 
 
+def write2json(write_path, data):
+    with open(write_path, 'w') as file:
+        file.write(json.dumps(data, indent=4))
+
+
 def get_qwen3vl_model(config:dict) -> tuple:
-    # default: Load the model on the available device(s)
-    # Can choose from: {2B, 4B, 8B, 30B, 235B}
-    #msize = "8B" # NOTE: to process 60k images, running inference will take several hundred hrs...unless we massively parallelize ops. Maybe we can use this for single, not batched, inference.
-    # 4B seems just right
-    #msize = "2B" # quite underperforming...
+    """ Get a Qwen model
+
+    NOTE:
+    - 2B does not perform quite well...
+    - 4B with float16 seems like a good middleground
+
+    :param config: (dict) give path to Huggingface model, or local huggingface model
+    :return: HF model
+    """
     if config["task"] == "debug":
         model = AutoModelForImageTextToText.from_pretrained(
-            config["qwen_path"], 
-            dtype="auto", 
+            config["qwen_path"],
+            dtype=torch.bfloat16, # {"auto", torch.bfloat16}
+            # attn_implementation="flash_attention_2",
+            attn_implementation="eager",
             device_map="auto"
         )
     elif config["task"] == "hpc":
@@ -49,7 +60,7 @@ def get_qwen3vl_model(config:dict) -> tuple:
     return model, processor
 
 
-def prep_qwen_img(path, logger=None):
+def prep_qwen_img(path):
     img = Image.open(path)
 
     # Check if we should resize very large images
@@ -70,37 +81,27 @@ def prep_qwen_img(path, logger=None):
     return img
 
 
-def get_img_ft_extract_prompt(prompt_key:str=None):
-    assert prompt_key is not None, f"Choose from one of key-prompt pairs:\n{image_feature_extraction_prompts}"
-
-    return image_feature_extraction_prompts[prompt_key]
-
-
-def qwen_inference(config:dict, logger, img_df:pd.DataFrame, col:str=None):
+def inference_qwen(config:dict):
     """
     Qwen3 VL model for image batch inference
     
     :param config: Description
-    :type config: dict
-    :param logger: Description
     :param img_df: Description
     :type img_df: pd.DataFrame
     :param col: Name for the column called `product_type` in img_df
     :type col: str
     """
-    assert col is not None
-    if col == "all":
-        df = img_df
-    else:
-        df = img_df[img_df["product_type"] == col]
+    # Read data
+    df = pd.read_csv(config["data_labels_filepath"], index_col=0)
 
-    logger.info(f"[Qwen3-VL] Using Qwen3-VL model for VLM inference on n={len(df)} images (column={col}).")
+    print(f"[Qwen3-VL] Using Qwen3-VL model for VLM inference on n={len(df)}.")
 
-    model, processor = get_qwen3vl_model()
-    img_extract_prompt = get_img_ft_extract_prompt(prompt_key="basic3")
-    logger.info(f"[Qwen3-VL] Prompt:\n\t> `{img_extract_prompt}`")
+    model, processor = get_qwen3vl_model(config)
+    img_extract_prompt = caption_prompt
+    print(f"[Qwen3-VL] Prompt:\n\t> `{img_extract_prompt}`")
 
-    out_path = os.path.join(config["experiment_write_path"], f"qwen3vl_{col}.json")
+    out_path = os.path.join(config["results_path"], f"res_qwen3vl_nodist.json")
+    inter_filepath = os.path.join(config["results_path"], f"inter_qwen3vl_nodist.json")
     out_data = []
     bad = 0
 
@@ -117,7 +118,7 @@ def qwen_inference(config:dict, logger, img_df:pd.DataFrame, col:str=None):
         try:
             img = prep_qwen_img(in_filepath)
         except Exception as e:
-            logger.info(f"An error occurred while opening the image {in_filepath}: {e}")
+            print(f"An error occurred while opening the image {in_filepath}: {e}")
             bad += 1
             current_data["description"] = "-1"
             out_data.append(current_data)
@@ -146,86 +147,49 @@ def qwen_inference(config:dict, logger, img_df:pd.DataFrame, col:str=None):
         inputs = inputs.to(model.device)
 
         # Inference: Generation of the output
-        generated_ids = model.generate(**inputs, max_new_tokens=128)
+        generated_ids = model.generate(**inputs, max_new_tokens=MAX_NEW_TOKENS)
         generated_ids_trimmed = [
             out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
         ]
         output_text = processor.batch_decode(
             generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )
-        #print(output_text)
 
         current_data["description"] = output_text
         out_data.append(current_data)
+        write2json(inter_filepath, out_data)
 
-        #if row_idx >= 16:
-        #    print("Getting out loop")
-        #    break
-    
-    logger.info(f"\n[INFO] Files that could not be read: {bad}")
-    
-    with open(out_path, 'w') as file:
-        file.write(json.dumps(out_data, indent=4))
-
-
-def evaluate_image_description(config, logger, img_df):
-    """
-    Run experiment for Qwen3 VL inference
-
-    Links:
-    https://github.com/QwenLM/Qwen3-VL
-    https://huggingface.co/collections/Qwen/qwen3-vl
-    
-    :param config: Description
-    :type config: dict
-    :param logger: Description
-    :param img_df: Description
-    :type img_df: pd.DataFrame
-    """
-    logger.info(f"[EVAL image description analysis] Starting experiment.")
-    _start = time.time()
-
-    # qwen_inference(config, logger, img_df, "all") # very slow...
-
-    # Separate files according to `product_type` column, 
-    logger.info(f'Case ...{config["experiment_name"]}')
-    logger.info(f"WARNING! Running this on all images in `img_df` will take a very long time! For this component of knowledge construction, run in a distributed computing environment.")
-
-    qwen_inference(config=config, logger=logger, img_df=img_df, col="all")
-    
-    _end = time.time()
-    logger.info(f"[EVAL image description analysis] Finished experiment. Elapsed time: {_end-_start:.3f} s")
+    print(f"\n[INFO] Files that could not be read: {bad}")
+    write2json(out_data, out_data)
 
 
 ###############################################################
 # Distributed code
 ###############################################################
-def write2json(write_path, data):
-    with open(write_path, 'w') as file:
-        file.write(json.dumps(data, indent=4))
-
-
 def inference_qwen_dist(config, dist_args):
     if dist_args.resume:
         # ...the below rank-to-file_idx mapping is hardcoded depending on the problem
         statuses = {
-            "in_progress": [9,2,0,1,10,3,11,8], 
+            "in_progress": [],
         }
+        if len(statuses["in_progress"]) == 0:
+            raise ValueError("If resuming, then manually fill in the ranks to continue!")
+
         _og_rank = int(os.environ["RANK"])
         rank = statuses["in_progress"][_og_rank]
         print(f"[DIST] Assigned rank: {_og_rank} --> Mapped rank (world size=32): {rank}")
     else:
         rank = int(os.environ["RANK"]) # NOTE: use for output names
     
-    world_size = 32 # dist_args.world_size <--- 32 is number of original partitions, treat this as a constant
+    world_size = WORLD_SIZE # dist_args.world_size <--- 32 is number of original partitions, treat this as a constant
     
     if not args.debug:
         if not os.path.exists(config["results_path"]) and rank == 0:
             os.makedirs(config["results_path"])
     
     df = pd.read_csv(config["data_labels_filepath"], index_col=0)
-    product_types = ['cigarettes', 'heated_tobacco', 'e-cigarettes', 'smokeless_tobacco'] # NOTE: focus on subset at this point in time
-    df = df[df['product_type'].isin(product_types)].reset_index(drop=True)
+    #product_types = ['cigarettes', 'heated_tobacco', 'e-cigarettes', 'smokeless_tobacco'] # NOTE: focus on subset at this point in time
+    #df = df[df['product_type'].isin(product_types)].reset_index(drop=True)
 
     print(f"Product types: {df['product_type'].unique()}")
 
@@ -267,7 +231,7 @@ def inference_qwen_dist(config, dist_args):
 
     # Qwen setup
     model, processor = get_qwen3vl_model(config=config)
-    img_extract_prompt = get_img_ft_extract_prompt(prompt_key="basic3")
+    img_extract_prompt = caption_prompt
     print(f"[Qwen3-VL] Prompt:\n\t> `{img_extract_prompt}`")
 
     # Iterate over all samples for Qwen inference
@@ -325,7 +289,7 @@ def inference_qwen_dist(config, dist_args):
         inputs = inputs.to(model.device)
 
         # Inference: Generation of the output
-        generated_ids = model.generate(**inputs, max_new_tokens=128)
+        generated_ids = model.generate(**inputs, max_new_tokens=MAX_NEW_TOKENS)
         generated_ids_trimmed = [
             out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
         ]
@@ -382,26 +346,29 @@ def setup_dist(args):
 
 
 def main_dist(args):
-    setup_dist(args)
+
     msize = "4B"
 
     if args.debug:
         print("[DEBUG] Setting script to DEBUG mode!")
         config = {
             "task": "debug",
-            "data_labels_filepath": "/home/mserna/projects/tobacco-projects/smart_connect_health_rag/data/tobacco_1m_2025/image_labels.csv",
-            "results_path": "/home/mserna/projects/tobacco-projects/smart_connect_health_rag/image_modules/qwen/debug_results",
+            "data_labels_filepath": "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data/tobacco_1m_raw/tobacco_1m_2026.csv",
+            "results_path": "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data/debug_results",
             "qwen_path": f"Qwen/Qwen3-VL-{msize}-Instruct", 
         }
+        inference_qwen(config)
     else:
+        print("[INFO] Setting script to run inference in a distributed environment!")
+
         config = {
             "task": "hpc",
             "data_labels_filepath": "/scrfs/storage/mserna/home/Programming/tobacco_1m_2026/hpc_image_labels.csv",
-            "results_path": "/scrfs/storage/mserna/home/Programming/tobacco_1m_2026/results/entity_extract-qwen_vlm",
+            "results_path": "/scrfs/storage/mserna/home/Programming/tobacco_1m_2026/results/detailed_captions-qwen_vlm",
             "qwen_path": f"Qwen/Qwen3-VL-{msize}-Instruct",
         }
-
-    inference_qwen_dist(config=config, dist_args=args)
+        setup_dist(args)
+        inference_qwen_dist(config=config, dist_args=args)
 
     print("[INFO] Done!")
 
