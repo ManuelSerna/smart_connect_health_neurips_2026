@@ -56,6 +56,15 @@ df = df[df['product_type'].isin(col)].reset_index(drop=True)
 out_filepath = os.path.join(config["results_path"], f"res_qwen3vl_nodist_{col[0]}.json")
 inter_filepath = os.path.join(config["results_path"], f"inter_qwen3vl_nodist_{col[0]}.json")
 
+# Resume if inter file exists
+if os.path.isfile(inter_filepath):
+    progress_df = pd.read_json(inter_filepath)
+    out_data:list = progress_df.to_dict(orient='records') # list of dicts, we resume now
+    print(f"[INFO] Resuming inference for {col[0]}, already have {len(out_data)} captions")
+else:
+    out_data = []
+    print(f"[INFO] Starting with new product type: {col[0]}.")
+
 def write2json(write_path, data):
     with open(write_path, 'w') as file:
         file.write(json.dumps(data, indent=4))
@@ -87,10 +96,6 @@ sampling_params = SamplingParams(
 # Each entry is a list of messages following the OpenAI-like format
 processor = AutoProcessor.from_pretrained(model_id)
 
-# TODO: if the scripts go down, read the inter file and resume...
-out_data = []
-uids = []
-
 def prepare_batch(paths):
     batch_inputs = []
     for path in paths:
@@ -117,8 +122,10 @@ def prepare_batch(paths):
 # Run inference
 start = 0
 for ref_idx in tqdm(range(start, len(df), DELTA)):
-    #print(f"start={start}...ref_idx={ref_idx},DELTA={DELTA}...N={len(df)}")
+    print(f"[{col[0]}] start={start}...ref_idx={ref_idx},DELTA={DELTA}...N={len(df)}")
     batch_filepaths = []
+    uids = []
+
     for d in range(DELTA):
         row = df.iloc[ref_idx+d]
         uids.append(int(row.uid))
