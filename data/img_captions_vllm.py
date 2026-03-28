@@ -11,17 +11,17 @@ from tqdm import tqdm
 
 
 all_cols = [
-    'cigarettes', # NOTE: in HPC
-    'cigars', # in progress
-    'e-cigarettes', # in progress
-    'gum', # in progress
+    'cigarettes',
+    'cigars',
+    'e-cigarettes',
+    'gum',
     'heated_tobacco',
     'hookah',
     'lozenges',
     'patches',
     'pipe_tobacco',
     'smokeless_tobacco',
-    #'uncategorized' # not important, leave for last
+    'uncategorized'
 ]
 
 
@@ -60,10 +60,13 @@ inter_filepath = os.path.join(config["results_path"], f"inter_qwen3vl_nodist_{co
 if os.path.isfile(inter_filepath):
     progress_df = pd.read_json(inter_filepath)
     out_data:list = progress_df.to_dict(orient='records') # list of dicts, we resume now
+    start = len(out_data) # start where we left off
     print(f"[INFO] Resuming inference for {col[0]}, already have {len(out_data)} captions")
 else:
+    start = 0
     out_data = []
     print(f"[INFO] Starting with new product type: {col[0]}.")
+
 
 def write2json(write_path, data):
     with open(write_path, 'w') as file:
@@ -85,12 +88,14 @@ llm = LLM(
     #vllm_config={"torch_compile": False}
 )
 
+
 # 2. Set sampling parameters
 sampling_params = SamplingParams(
     temperature=0.2,
     max_tokens=256,
     stop_token_ids=[]
 )
+
 
 # 3. Prepare the batch of images
 # Each entry is a list of messages following the OpenAI-like format
@@ -119,14 +124,17 @@ def prepare_batch(paths):
         })
     return batch_inputs
 
+
 # Run inference
-start = 0
 for ref_idx in tqdm(range(start, len(df), DELTA)):
     print(f"[{col[0]}] start={start}...ref_idx={ref_idx},DELTA={DELTA}...N={len(df)}")
     batch_filepaths = []
     uids = []
 
     for d in range(DELTA):
+        if ref_idx+d >= len(df):
+            print(f" > Reached the end of the samples set ({col[0]}).")
+            continue # we have reached the end
         row = df.iloc[ref_idx+d]
         uids.append(int(row.uid))
         batch_filepaths.append(row.filepath)
@@ -135,6 +143,8 @@ for ref_idx in tqdm(range(start, len(df), DELTA)):
     outputs = llm.generate(model_inputs, sampling_params=sampling_params)
 
     for d in range(DELTA):
+        if ref_idx+d >= len(df):
+            continue
         out_text = outputs[d].outputs[0].text
         out_data.append({
             "filepath": batch_filepaths[d],
@@ -147,3 +157,5 @@ for ref_idx in tqdm(range(start, len(df), DELTA)):
 
 # Write final list to file
 write2json(out_filepath, out_data)
+print(f"[{col[0]}] Done. Processed {len(out_data)} samples ({len(df)} from dataframe).")
+
