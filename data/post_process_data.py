@@ -22,10 +22,10 @@ from tqdm import tqdm
 attributes = ['item', 'description', 'flavors', 'marketing', 'shape', 'color', 'text']
 attributes_to_probe = ['item', 'description', 'marketing', 'text']
 known_product_names = {
-    'smokeless_tobacco': ["copenhagen", "goat", "husky", "klint", "longhorn", "rogue", "stokers", "velo", "zyn", "creek", "grizzly", "kayak", "kodiak", "red seal", "skoal", "timber wolf", "vild", 'nykd', 'xqs', 'on!', 'baow', 'lynx', '77', 'volt', 'maverick', 'vid', 'fumi', 'lyft'], # NOTE: -> {smokeless tobacco, nicotine pouches}
+    'smokeless_tobacco': ["copenhagen", "goat", "husky", "klint", "longhorn", "rogue", "stokers", "velo", "zyn", "creek", "grizzly", "kayak", "kodiak", "red seal", "skoal", "timber wolf", "vild", 'nykd', 'xqs', 'on!', 'baow', 'lynx', '77', 'volt', 'maverick', 'vid', 'fumi', 'lyft', 'smokey mountain', 'dynamite', 'kavak', "taylor's pride", "wakey"], # NOTE: -> {smokeless tobacco, nicotine pouches}
 }
 
-server_root = "/media/ttdat/Data2TB/manuel/tobacco/tobacco_1m_2026" # contains 'dataset'
+server_root = "/media/ttdat/Data2TB/manuel/tobacco/tobacco_1m_2026" # contains 'dataset''smokey mountain'
 data_root = "/home/serna/Programming/smart_connect_health_neurips_2026/data" # contains 'dataset'
 simple_labels_path = os.path.join(data_root, "simple_image_labels.csv")
 captions_path = os.path.join(data_root, "debug_results/result_qwen3vl_captions")
@@ -73,6 +73,12 @@ def get_item_labels_one_sample(data:dict):
     :param data: (dict) caption and attribute generation output for one sample
     :return:
     """
+
+    # TODO: follow the below steps to get refined labels
+    #  1) fill in the names for all other product types
+    #  2) check for different product types, then check for names under that product type
+    #  3) if no match, then return '', and then I have to manually check again
+
     # if data['simple_product_type'] == 'cigarettes':
     #     pass
     # elif data['simple_product_type'] == 'cigars':
@@ -135,6 +141,7 @@ def post_process_one_product_type(captions_df, labels_df) -> list:
     :return:
     """
     assert len(captions_df) == len(labels_df)
+
     out_data = []
 
     # Go over rows of captions data
@@ -167,7 +174,8 @@ def post_process_one_product_type(captions_df, labels_df) -> list:
             for att in attributes:
                 try:
                     if isinstance(row_att[att], list):
-                        current_data[att] = tuple(row_att[att])
+                        #current_data[att] = tuple(row_att[att])
+                        current_data[att] = ', '.join(row_att[att])
                     else:
                         current_data[att] = row_att[att]
                 except KeyError:
@@ -181,12 +189,17 @@ def post_process_one_product_type(captions_df, labels_df) -> list:
             out_data.append(current_data)
 
     # ------------------------------------------------------
+    # import pdb;pdb.set_trace()
+
     # DEBUG: assuming no data leakage across the original product_type
     curr_df = pd.DataFrame(out_data)
+    print(curr_df)
+    raise Exception() # fix each label one at a time, then come back here
 
     options = ''
-    #for name in known_product_names["smokeless_tobacco"]:
-    #    options += f'{name}|'
+    current_brands = ["copenhagen", "klint", "longhorn", "rogue", "stokers", "velo", "zyn", "red seal", "skoal", "timber wolf", "vild", 'nykd', 'xqs', 'on!', 'baow', 'lynx', '77', 'volt', 'maverick', 'vid', 'fumi', 'lyft', 'smokey mountain', 'dynamite', 'kavak', "taylor's pride", "wakey"] # kavak=>kayak
+    for name in current_brands:
+        options += f'{name}|'
     options = options + 'smokeless|tobacco|smokeless tobacco|nicotine|pouch|nicotine pouch'
     item_df = curr_df[curr_df.item.str.contains(options, case=False)]
     print(len(item_df))
@@ -197,10 +210,12 @@ def post_process_one_product_type(captions_df, labels_df) -> list:
     text_df = curr_df[curr_df.text.str.contains(options, case=False, na=False)]
     print(len(text_df))
 
-    tmp_df = pd.concat([desc_df, item_df, market_df, text_df])
-    tmp_df = tmp_df.drop_duplicates()
-    tmp_df = tmp_df.reset_index(drop=True)
-    tmp_df.to_csv(os.path.join(data_root, "sample_labels.csv"))
+    res_df = pd.concat([desc_df, item_df, market_df, text_df])
+    res_df = res_df.drop_duplicates()
+    res_df = res_df.reset_index(drop=True)
+    res_df.to_csv(os.path.join(data_root, "sample_labels.csv"))
+
+    # res_df[res_df['product_name'] == ''] # should be empty!!!
 
     """# DEBUG: get as many accurate labels for product names in curr_df as possible, and confirm new ones
     found_pt_names = curr_df.product_name.unique().tolist()
