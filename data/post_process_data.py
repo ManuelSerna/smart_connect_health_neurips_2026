@@ -51,10 +51,12 @@ known_product_names = { # removed names that may be mistaken for other things--a
     "uncategorized": [] # TODO: fill in later
 }
 
+manual_check_product_names = ["kayak"] # the images under this product name label have a lot of noise; check manually
+
 server_root = "/media/ttdat/Data2TB/manuel/tobacco/tobacco_1m_2026" # contains 'dataset''smokey mountain'
 
 computers = {"lambda", "cviu", "home", "lab"}
-computer="lambda"
+computer="lab"
 if computer == "home":
     data_root = "/home/serna/Programming/smart_connect_health_neurips_2026/data" # contains 'dataset'
 elif computer == "lab":
@@ -112,22 +114,48 @@ def get_item_labels_one_sample(data:dict):
     """
     # TODO: follow the below steps to get refined labels
     #  DONE--1) fill in the names for all other product types
-    #  2) check for different product types in the attributes (already have at this pt)
+    #  DONE--2) check for different product types in the attributes (already have at this pt)
     #  3) then check for names under that product type (may have to update)
     #  4) if no match, then return '', and then I have to manually check again
 
     # (i) see if product type key words, not present in other types, are present first, helping us narrow down possible brands
+    candidate_refined_pt = ""
+    pt_match_attribute = None
+    candidate_refined_pn = ""
+    pn_match_attribute = None
+    product_type_matched = False
+
+    if data["simple_product_name"] in manual_check_product_names:
+        return "-1", "-1" # manually check since these are very noisy
+
     for pt_name, keyword_list in product_type_keywords.items():
         for keyword in keyword_list:
             # for current keyword, check if it is in attributes
             for attribute in attributes:
                 if keyword in data[attribute]:
-                    import pdb;pdb.set_trace()
+                    candidate_refined_pt = pt_name
+                    pt_match_attribute = (attribute, data[attribute])
+                    product_type_matched = True
 
     # (ii) if no product type match found, find based on brand name
-    # TODO
+    # TODO: i think for any case, we should match based on name, and raise exception if first and second assignments of `candidate_refined_pt` mismatch, and why
+    for pt_name, name_list in known_product_names.items():
+        for brand in name_list:
+            # for current keyword, check if it is in attributes
+            for attribute in attributes:
+                if brand in data[attribute]:
+                    candidate_refined_pt = brand
+                    pn_match_attribute = (attribute, data[attribute])
 
-    #import pdb;pdb.set_trace()
+                    if product_type_matched:
+                        pass
+                    else:
+                        pass# TODO: given name, get product type
+
+    raise Exception("I think its better to manually remove images in a copy of the dataset in my local PC. There is a lot of noise still...")
+
+    #if product_type_matched:
+    #    import pdb;pdb.set_trace()
 
     # --------------------------------------
     # NOTE: OLD code below, the below code that returns product type and brand name will be replaced
@@ -166,7 +194,7 @@ def get_item_labels_one_sample(data:dict):
     #import pdb;pdb.set_trace()
     '''
 
-    return "", ""
+    return candidate_refined_pt, candidate_refined_pn
 
 
 def post_process_one_product_type(captions_df, labels_df) -> list:
