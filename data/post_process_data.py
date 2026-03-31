@@ -54,11 +54,13 @@ known_product_names = { # removed names that may be mistaken for other things--a
 server_root = "/media/ttdat/Data2TB/manuel/tobacco/tobacco_1m_2026" # contains 'dataset''smokey mountain'
 
 computers = {"lambda", "cviu", "home", "lab"}
-computer="lab"
+computer="lambda"
 if computer == "home":
     data_root = "/home/serna/Programming/smart_connect_health_neurips_2026/data" # contains 'dataset'
 elif computer == "lab":
     data_root = "/home/mserna/Programming/smart_connect_health_neurips_2026/data"
+elif computer == "lambda":
+    data_root = "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data"
 else:
     raise ValueError("Unknown computer")
 
@@ -114,9 +116,22 @@ def get_item_labels_one_sample(data:dict):
     #  3) then check for names under that product type (may have to update)
     #  4) if no match, then return '', and then I have to manually check again
 
+    # (i) see if product type key words, not present in other types, are present first, helping us narrow down possible brands
+    for pt_name, keyword_list in product_type_keywords.items():
+        for keyword in keyword_list:
+            # for current keyword, check if it is in attributes
+            for attribute in attributes:
+                if keyword in data[attribute]:
+                    import pdb;pdb.set_trace()
 
+    # (ii) if no product type match found, find based on brand name
+    # TODO
 
+    #import pdb;pdb.set_trace()
 
+    # --------------------------------------
+    # NOTE: OLD code below, the below code that returns product type and brand name will be replaced
+    '''
     if data['simple_product_type'] == 'smokeless_tobacco':
         # TODO: we have to separate into 'smokeless_tobacco' and 'nicotine_pouches', and change simple labels
         pass
@@ -149,6 +164,7 @@ def get_item_labels_one_sample(data:dict):
     # TODO: use simple product name or product type label to find case=False contains match
     #  else, loop through the other products names and keywords,
     #import pdb;pdb.set_trace()
+    '''
 
     return "", ""
 
