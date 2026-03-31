@@ -21,12 +21,47 @@ from tqdm import tqdm
 
 attributes = ['item', 'description', 'flavors', 'marketing', 'shape', 'color', 'text']
 attributes_to_probe = ['item', 'description', 'marketing', 'text']
-known_product_names = {
-    'smokeless_tobacco': ["copenhagen", "goat", "husky", "klint", "longhorn", "rogue", "stokers", "velo", "zyn", "creek", "grizzly", "kayak", "kodiak", "red seal", "skoal", "timber wolf", "vild", 'nykd', 'xqs', 'on!', 'baow', 'lynx', '77', 'volt', 'maverick', 'vid', 'fumi', 'lyft', 'smokey mountain', 'dynamite', 'kavak', "taylor's pride", "wakey"], # NOTE: -> {smokeless tobacco, nicotine pouches}
+
+product_type_keywords = { # TODO: fine synonyms and associated slang for each prod type
+    "nicotine_pouch": ["nicotine pouch", "pouch"], # NEW, TODO: I think we should add energy and coffee pouches, as supplementary samples
+    "smokeless_tobacco": ["snuff", "smokeless", "dip"],
+    "pipe_tobacco": ["pipe"],
+    "cigars": ["cigar"],
+    "hookah": ["hookah"],
+    "patches": ["patch"],
+    "gum": ["gum"],
+    "lozenges": ["lozenge"],
+    "heated_tobacco": ["heated tobacco"],
+    "cigarettes": ["cigarette"],
+    "e-cigarettes": ["e-cigarette", "vape"],
+    "uncategorized": [] # TODO: do later
+}
+
+known_product_names = { # removed names that may be mistaken for other things--animals, objects, etc.
+    "smokeless_tobacco": ["copenhagen", "goat", "husky", "klint", "longhorn", "rogue", "stokers", "velo", "zyn", "creek", "grizzly", "kayak", "kodiak", "red seal", "skoal", "timber wolf", "vild", 'nykd', 'xqs', 'on!', 'baow', 'lynx', '77', 'volt', 'maverick', 'vid', 'fumi', 'lyft', 'smokey mountain', 'dynamite', 'kavak', "taylor's pride", "wakey"], # NOTE: -> {smokeless tobacco, nicotine pouches}
+    "pipe_tobacco": ['peterson', 'cornell and diehl', 'john cotton', 'hearth & home'],
+    "cigars": ['davidoff', 'perdomo', 'ashton', 'arturo fuente', 'la aroma de cuba', 'romeo y julieta', 'oliva', 'gold & mild', 'black & mild'],
+    "hookah": ['trifecta', 'nakhla', 'khalil mamoon', 'kaloud', 'al fakher', 'starbuzz', 'tangiers'],
+    "patches": ['nicotex', 'habitrol', 'puzeku', 'leader', 'walgreens', 'apotex', 'fekux', 'sorelax', 'ximonth', 'nicotouch', 'nicoderm', 'nicassist', 'valleylux', 'kroger', 'cvs', 'aroamas', 'rugby', 'sunmark', 'nicotinell', 'nicotrol', 'blue point', 'nicorette', 'nicabate', 'quitx', 'rite aid', 'deboob', 'sparsha', 'major pharmaceuticals', 'equate', 'telanshare', 'up&up', 'niquitin', 'bluepoint'],
+    "gum": ['meijer', 'rugby', 'nicorelief', 'members mark', 'goodsense', 'amazon', 'blip', 'kroger', 'sainsburys', 'equate', 'zonnic', 'lucy', 'rite aid', 'nicotinell', 'leader', 'cvs', 'up&up', 'nicotrol', 'nicassist', 'sunmark'],
+    "lozenges": ['kirkland signature', 'wellness basics', 'signature care', 'publix', 'amazon', 'walgreens', 'nixit', 'jones', 'rubicon', 'foster & thrive', 'nicosure', 'rising health', 'heb', 'kroger', 'zonnic', 'members mark', 'goodsense', 'cvs', 'up&up', 'nicotex', 'blip', 'sunmark', 'rogue', 'niquitin', 'meijer', 'rite aid', 'nicassist', 'rugby'],
+    "heated_tobacco": ['iqos', 'ismod', 'ploom', 'pulze', 'pax', 'terea', 'evo', 'glo', 'nexone', 'buddz', 'lil', 'hitaste', 'heets', 'neostik'],
+    "cigarettes": ['premier', 'eclipse', 'pall mall', 'marlboro', 'l & m', 'winston', 'american spirit', 'newport', 'camel', 'chesterfield', 'rothmans', 'sampoerna', 'padron'],
+    "e-cigarettes": ['vuse solo', 'flum', 'geek bar', 'mi-pod', 'lost mary', 'tyson 20', 'smok', 'uwell', 'raz', 'vuse', 'nex'],
+    "uncategorized": [] # TODO: fill in later
 }
 
 server_root = "/media/ttdat/Data2TB/manuel/tobacco/tobacco_1m_2026" # contains 'dataset''smokey mountain'
-data_root = "/home/serna/Programming/smart_connect_health_neurips_2026/data" # contains 'dataset'
+
+computers = {"lambda", "cviu", "home", "lab"}
+computer="lab"
+if computer == "home":
+    data_root = "/home/serna/Programming/smart_connect_health_neurips_2026/data" # contains 'dataset'
+elif computer == "lab":
+    data_root = "/home/mserna/Programming/smart_connect_health_neurips_2026/data"
+else:
+    raise ValueError("Unknown computer")
+
 simple_labels_path = os.path.join(data_root, "simple_image_labels.csv")
 captions_path = os.path.join(data_root, "debug_results/result_qwen3vl_captions")
 out_labels_path = os.path.join(data_root, "image_labels.csv")
@@ -68,37 +103,22 @@ def check_caption_raw_out():
 
 
 def get_item_labels_one_sample(data:dict):
-    """ Get refined item labels for one sample
+    """ Get refined item labels for one sample.
 
     :param data: (dict) caption and attribute generation output for one sample
     :return:
     """
-
     # TODO: follow the below steps to get refined labels
-    #  1) fill in the names for all other product types
-    #  2) check for different product types, then check for names under that product type
-    #  3) if no match, then return '', and then I have to manually check again
+    #  DONE--1) fill in the names for all other product types
+    #  2) check for different product types in the attributes (already have at this pt)
+    #  3) then check for names under that product type (may have to update)
+    #  4) if no match, then return '', and then I have to manually check again
 
-    # if data['simple_product_type'] == 'cigarettes':
-    #     pass
-    # elif data['simple_product_type'] == 'cigars':
-    #     pass
-    # elif data['simple_product_type'] == 'e-cigarettes':
-    #     pass
-    # elif data['simple_product_type'] == 'gum':
-    #     pass
-    # elif data['simple_product_type'] == 'heated_tobacco':
-    #     pass
-    # elif data['simple_product_type'] == 'hookah':
-    #     pass
-    # elif data['simple_product_type'] == 'lozenges':
-    #     pass
-    # elif data['simple_product_type'] == 'patches':
-    #     pass
-    # elif data['simple_product_type'] == 'pipe_tobacco':
-    #     pass
+
+
+
     if data['simple_product_type'] == 'smokeless_tobacco':
-        # TODO: we have to separate into 'smokeless_tobacco' and 'nicotine_pouches'
+        # TODO: we have to separate into 'smokeless_tobacco' and 'nicotine_pouches', and change simple labels
         pass
     else:
         #product_type = data['simple_product_type']
@@ -147,14 +167,22 @@ def post_process_one_product_type(captions_df, labels_df) -> list:
     # Go over rows of captions data
     for j in tqdm(range(len(captions_df))):
         caption_row = captions_df.iloc[j]
-        labels_row = labels_df[labels_df["uid"] == caption_row["uid"]]
-        assert labels_row.filepath.item() in caption_row.filepath
-        caption_row_atts: list = json.loads(caption_row.caption)
+        labels_row = labels_df[labels_df["uid"] == caption_row["uid"]] # get corresponding simple labels row by uid
+
+        # Check
+        assert labels_row.filepath.item() in caption_row.filepath # check file paths match as an added sanity layer
+        try:
+            caption_row_atts: list[dict] = json.loads(caption_row.caption) # load dict encoded as string to list[dict]
+        except json.decoder.JSONDecodeError:
+            continue # this should remove empty string samples, very few and irrelevant samples will be tossed (handful)
 
         # The caption for current image is a list, and may include multiple detected items
         for object_idx, row_att in enumerate(caption_row_atts):
+            if not isinstance(row_att, dict):
+                continue # this tosses out any objects (row_att) that are not dicts that the json repair lib did repair, but is not what we want
+
             # For current item...
-            # ...add simple labels
+            # ...add simple labels from corresponding labels_row
             uid = labels_row.uid.item()
             filepath = labels_row.filepath.item()
             simple_tobacco_type = labels_row.tobacco_type.item()
@@ -172,14 +200,15 @@ def post_process_one_product_type(captions_df, labels_df) -> list:
 
             # ...add caption info
             for att in attributes:
-                try:
-                    if isinstance(row_att[att], list):
-                        #current_data[att] = tuple(row_att[att])
-                        current_data[att] = ', '.join(row_att[att])
-                    else:
-                        current_data[att] = row_att[att]
-                except KeyError:
-                    current_data[att] = "" # for some reason, the captioning did not have this key
+                # First add empty attribute if it is not present in the attribute dict
+                if att not in row_att.keys():
+                    current_data[att] = ""
+                    continue
+
+                if isinstance(row_att[att], list):
+                    current_data[att] = ', '.join(row_att[att])
+                else:
+                    current_data[att] = row_att[att]
 
             # ...add refined labels (based caption and simple labels)
             product_type, product_name = get_item_labels_one_sample(current_data)
@@ -251,13 +280,17 @@ def post_process_all_data(replace_img_path:bool=False, out_filepath:str=None):
     simple_df = pd.read_csv(simple_labels_path, index_col=0)
     files = os.listdir(captions_path)
 
+    # DEBUG: smokeless tobacco first
+    files = ["res_qwen3vl_nodist_smokeless_tobacco.json"]
+
     all_out_data = [] # will form output df
     #sample_attributes = {at:{} for at in attributes} # for each attribute, each dict element is uid:(str)
 
     for filename in files:
-        print(f"Processing file: {filename}")
         data_path = os.path.join(captions_path, filename)
         cdf = pd.read_json(data_path)
+
+        print(f"Processing file: {filename}; samples={len(cdf)}")
 
         if replace_img_path:
             cdf.filepath = cdf.filepath.str.replace(server_root, data_root)
