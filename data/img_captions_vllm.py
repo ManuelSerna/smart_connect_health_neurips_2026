@@ -10,6 +10,16 @@ import torch
 from tqdm import tqdm
 
 
+# Global vars
+DELTA = 32 # number of samples per batch, how many idxs to skip in df
+
+MAX_IM_SIDE_LEN = 1000
+MAX_ASSIGN_LEN = 854 # map the long edge to this val
+
+MAX_NEW_TOKENS=128 # {128, 200, 256}, 128 works well
+
+model_id = "Qwen/Qwen3-VL-4B-Instruct"
+
 all_cols = [
     'cigarettes',
     'cigars',
@@ -24,37 +34,68 @@ all_cols = [
     'uncategorized'
 ]
 
+prompts = {
+    "caption": "Describe the item(s) in the image; look out for nicotine or tobacco related products. Return the descriptions (1 sentence), flavors, text, marketing strategy (1 sentence), shapes, and colors, in a JSON list. If an attribute does not exist, return an empty string for that attribute. Be factual. Template for one item: {'item': '', 'description':'', 'flavors':'', 'marketing':'', 'shape':'', 'color':'', 'text':''}",
+    "sift": "Given the image, is there anything related to tobacco or nicotine? Consider tobacco or nicotine brands, products, people using products, advertisements, etc. Respond only with 'yes' or 'no'."
+}
 
+""" Example usage
+
+python img_captions_vllm.py --input_csv "image_labels_positive_subset.csv" --output_dir "sift_results" --prompt "sift" --column_name "e-cigarettes"
+"""
+# Parse args
 parser = argparse.ArgumentParser('VLLM Qwen batched captioning')
+parser.add_argument('--input_csv', type=str, required=True)
+parser.add_argument('--output_dir', type=str, required=True)
+parser.add_argument('--prompt', type=str, required=True, choices=prompts.keys())
 parser.add_argument('--column_name', required=True, type=str, choices=all_cols)
 args = parser.parse_args()
 
+input_csv = args.input_csv
+assert os.path.isfile(input_csv)
+output_dir = args.output_dir
+prompt = args.prompt
 col = [args.column_name]
 assert len(col) == 1
 
-DELTA = 32 # number of samples per batch, how many idxs to skip in df
 
-MAX_IM_SIDE_LEN = 1000
-MAX_ASSIGN_LEN = 854 # map the long edge to this val
-
-MAX_NEW_TOKENS=128 # {128, 200, 256}, 128 works well
-
-caption_prompt = "Describe the item(s) in the image; look out for nicotine or tobacco related products. Return the descriptions (1 sentence), flavors, text, marketing strategy (1 sentence), shapes, and colors, in a JSON list. If an attribute does not exist, return an empty string for that attribute. Be factual. Template for one item: {'item': '', 'description':'', 'flavors':'', 'marketing':'', 'shape':'', 'color':'', 'text':''}"
-model_id = "Qwen/Qwen3-VL-4B-Instruct"
-
-
+# Config
 config = {
-    "task": "debug",
-    "data_labels_filepath": "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data/tobacco_1m_raw/tobacco_1m_2026.csv",
-    "results_path": "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data/debug_results",
+    #"data_labels_filepath": "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data/tobacco_1m_raw/tobacco_1m_2026.csv", # this was the path used for generating captions for all samples (many of which were noisy)
+    "data_labels_filepath": input_csv,
+    "results_path": f"/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data/{output_dir}",
     "qwen_path": model_id,
 }
 
-df = pd.read_csv(config["data_labels_filepath"], index_col=0)
-df = df[df['product_type'].isin(col)].reset_index(drop=True)
+# Create output dir
+if not os.path.isdir(config["results_path"]):
+    os.makedirs(config["results_path"])
+
+
+# Read data, set output path
+if prompt == "caption":
+    df = pd.read_csv(config["data_labels_filepath"], index_col=0)
+    df = df[df['product_type'].isin(col)].reset_index(drop=True)
+    caption_prompt = prompts["caption"]
+elif prompt == "sift":
+    df = pd.read_csv(config["data_labels_filepath"])#, index_col=0)
+
+    # With the data we used to generate captions, and the samples we want to clean up, we have object Ids, so only get id 0 and remove duplicate file paths
+    df = df[df['object_id'] == 0]
+    print(f"Samples: {len(df)}")
+
+    # "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026"
+    df.filepath = df.filepath.str.replace("positive_dataset", "/media/ttdat/Data2TB/manuel/tobacco/tobacco_1m_2026/positive_dataset")
+    df = df[df['simple_product_type'].isin(col)].reset_index(drop=True)
+    caption_prompt = prompts["sift"]
+else:
+    raise ValueError(f"Incorrect prompt: {prompt}")
+
+print(f"[INFO] Caption prompt: {prompt} -> {caption_prompt}")
 
 out_filepath = os.path.join(config["results_path"], f"res_qwen3vl_nodist_{col[0]}.json")
 inter_filepath = os.path.join(config["results_path"], f"inter_qwen3vl_nodist_{col[0]}.json")
+
 
 # Resume if inter file exists
 if os.path.isfile(inter_filepath):
@@ -158,4 +199,3 @@ for ref_idx in tqdm(range(start, len(df), DELTA)):
 # Write final list to file
 write2json(out_filepath, out_data)
 print(f"[{col[0]}] Done. Processed {len(out_data)} samples ({len(df)} from dataframe).")
-

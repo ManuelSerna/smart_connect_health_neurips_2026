@@ -52,24 +52,24 @@ known_product_names = { # removed names that may be mistaken for other things--a
     "uncategorized": [] # TODO: fill in later
 }
 
-manual_check_product_names = ["kayak"] # the images under this product name label have a lot of noise; check manually
-
 server_root = "/media/ttdat/Data2TB/manuel/tobacco/tobacco_1m_2026" # contains 'dataset''smokey mountain'
 
 computers = {"lambda", "cviu", "home", "lab"}
-computer="home"
+computer="lambda"
 if computer == "home":
     data_root = "/home/serna/Programming/smart_connect_health_neurips_2026/data" # contains 'dataset'
+    dataset_root = "dataset"
 elif computer == "lab":
     data_root = "/home/mserna/Programming/smart_connect_health_neurips_2026/data"
+    dataset_root = "dataset"
 elif computer == "lambda":
     data_root = "/home/mserna/projects/tobacco-projects/smart_connect_health_neurips_2026/data"
+    dataset_root = "/media/ttdat/Data2TB/manuel/tobacco/tobacco_1m_2026/dataset"
 else:
     raise ValueError("Unknown computer")
 
 simple_labels_path = os.path.join(data_root, "simple_image_labels.csv")
 captions_path = os.path.join(data_root, "debug_results/result_qwen3vl_captions")
-out_labels_path = os.path.join(data_root, "image_labels.csv")
 
 
 
@@ -180,68 +180,73 @@ def post_process_one_product_type(captions_df, labels_df) -> tuple:
 
 
 def create_pos_neg_datasets():
-    replace_img_path = True
+    if os.path.isfile("simple_image_labels_negative.csv") and os.path.isfile("simple_image_labels_negative.csv"):
+        neg_df = pd.read_csv(f"simple_image_labels_negative.csv")
+        pos_df = pd.read_csv(f"image_labels_positive.csv")
 
-    # Create negative and positive dataset folders
-    subfolders = []
-    for root, dirs, files in os.walk("dataset"):
-        for d in dirs:
-            subfolders.append(os.path.join(root, d))
+        print(f"Read positive samples df: {len(pos_df)}")
+        print(f"Read negative samples df: {len(neg_df)}")
+    else:
+        # Create negative and positive dataset folders
+        subfolders = []
+        for root, dirs, files in os.walk(dataset_root):
+            for d in dirs:
+                subfolders.append(os.path.join(root, d))
 
-    pos_name = "positive_dataset"
-    neg_name = "negative_dataset"
+        for subfolder in subfolders:
+            new_path = subfolder.replace("dataset", "positive_dataset")
+            os.makedirs(new_path, exist_ok=True)
+            new_path = subfolder.replace("dataset", "negative_dataset")
+            os.makedirs(new_path, exist_ok=True)
 
-    for subfolder in subfolders:
-        new_path = subfolder.replace("dataset", "positive_dataset")
-        os.makedirs(new_path, exist_ok=True)
-        new_path = subfolder.replace("dataset", "negative_dataset")
-        os.makedirs(new_path, exist_ok=True)
+        # Process files
+        simple_df = pd.read_csv(simple_labels_path, index_col=0)
+        files = os.listdir(captions_path)
 
-    # Process files
-    simple_df = pd.read_csv(simple_labels_path, index_col=0)
-    files = os.listdir(captions_path)
+        negative_data = []
+        positive_data = []
 
-    negative_data = []
-    positive_data = []
+        for filename in files:
+            data_path = os.path.join(captions_path, filename)
+            cdf = pd.read_json(data_path)
 
-    for filename in files:
-        data_path = os.path.join(captions_path, filename)
-        cdf = pd.read_json(data_path)
+            print(f"Processing file: {filename}; samples={len(cdf)}")
 
-        print(f"Processing file: {filename}; samples={len(cdf)}")
+            if computer == "lambda":
+                cdf.filepath = cdf.filepath.str.replace("dataset", server_root + "/dataset")
+            else:
+                cdf.filepath = cdf.filepath.str.replace(server_root, data_root)
 
-        if replace_img_path:
-            cdf.filepath = cdf.filepath.str.replace(server_root, data_root)
-        cdf.caption = cdf.caption.apply(lambda x: repair_json(x))
+            cdf.caption = cdf.caption.apply(lambda x: repair_json(x))
 
-        pt_df = simple_df[simple_df["uid"].isin(set(cdf.uid.unique()))]
+            pt_df = simple_df[simple_df["uid"].isin(set(cdf.uid.unique()))]
 
-        # Process all samples for the current file/product type
-        current_negative, current_positive = post_process_one_product_type(captions_df=cdf, labels_df=pt_df)
-        negative_data.append(current_negative)
-        positive_data.append(current_positive)
+            # Process all samples for the current file/product type
+            current_negative, current_positive = post_process_one_product_type(captions_df=cdf, labels_df=pt_df)
+            negative_data.append(current_negative)
+            positive_data.append(current_positive)
 
-    # Write positive and negative sample info to file
-    neg_df = pd.concat(negative_data)
-    pos_df = pd.concat(positive_data)
+        # Write positive and negative sample info to file
+        neg_df = pd.concat(negative_data)
+        pos_df = pd.concat(positive_data)
 
-    print(f"Positive samples (objects): {len(pos_df)}; images: {len(pos_df.uid.unique())}")
-    print(f"Negative samples: {len(neg_df)}")
+        print(f"Positive samples (objects): {len(pos_df)}; images: {len(pos_df.uid.unique())}")
+        print(f"Negative samples: {len(neg_df)}")
 
-    neg_df.to_csv(f"simple_image_labels_negative.csv", index=False)
-    pos_df.to_csv(f"image_labels_positive.csv", index=False)
+        neg_df.to_csv(f"simple_image_labels_negative.csv", index=False)
+        pos_df.to_csv(f"image_labels_positive.csv", index=False)
 
     # Copy files from dataset to positive or negative versions for manual review
     print("Copying positive samples to new subset")
     for pf in tqdm(pos_df.filepath):
-        old_filepath = pf
-        new_filepath = pf.replace("dataset", "positive_dataset")
+        old_filepath = os.path.join(server_root, pf)
+        new_filepath = os.path.join(server_root, pf.replace("dataset", "positive_dataset"))
         shutil.copy(old_filepath, new_filepath)
 
     print("Copying negative samples to new subset")
     for pf in tqdm(neg_df.filepath):
-        old_filepath = pf
-        new_filepath = pf.replace("dataset", "negative_dataset")
+        old_filepath = os.path.join(server_root, pf)
+        new_filepath = os.path.join(server_root, pf.replace("dataset", "negative_dataset"))
         shutil.copy(old_filepath, new_filepath)
 
     neg_df.filepath = neg_df.filepath.str.replace("dataset", "negative_dataset")
@@ -404,3 +409,4 @@ if __name__ == '__main__':
 
     # Step 4a
     create_pos_neg_datasets() # NOTE: this will create basically another copy of the dataset, so mind the storage requirements
+    print("Next, use Qwen to create a second set of positive and negative datasets. Come back here after they have been manually checked.")
