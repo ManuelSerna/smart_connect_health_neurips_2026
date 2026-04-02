@@ -257,6 +257,33 @@ def create_pos_neg_datasets():
     print("Done.")
 
 
+def check_second_neg_pos_datasets():
+    second_pass_dir = "sift_results"
+    template = os.path.join(second_pass_dir, "res_qwen3vl_nodist_{}.json")
+
+    pos_dfs = []
+    neg_dfs = []
+
+    for pt in known_product_names.keys():
+        tmp = pd.read_json(template.format(pt))
+        pos_dfs.append(tmp[tmp['caption'] == 'yes'])
+        neg_dfs.append(tmp[tmp['caption'] == 'no'])
+
+        print(f"... [{pt}] {len(tmp[tmp['caption'] == 'yes'])} positive samples")
+        print(f"... [{pt}] {len(tmp[tmp['caption'] == 'no'])}  negative samples")
+
+    pos_df = pd.concat(pos_dfs)
+    neg_df = pd.concat(neg_dfs)
+
+    print(f"positive: {len(pos_df)}")
+    print(f"negative: {len(neg_df)}")
+
+    # TODO: move samples of second positive and second negative sets to their own folders, but not in remote machine, do it locally
+
+    import pdb;pdb.set_trace()
+
+
+
 if __name__ == '__main__':
     ''' Our processing pipeline:
     1. Use large scale scraping from APIfy to get raw set of samples from publicly-available sources
@@ -265,7 +292,7 @@ if __name__ == '__main__':
         This will help automate differentiating images that are not tobacco or nicotine products but may be hard to filter due to text query-image similarity from the scraping procedure.
     4. Semi-automatic cleanup
         4a. To separate the negative (irrelevant) samples from the positive (relevant) samples, we initially sort them, using the VLM captioning of multiple attributes, into negative and positive versions of the dataset.
-            - IN PROGRESS
+            - DONE
         4b. Manually search for images in the negative dataset that should be moved to the positive dataset.
             For NEGATIVE samples, remove any image files that we know should be moved to the **POSITIVE** dataset. (We care more about this case.)
             For POSITIVE samples, remove any image files that we know should be moved to the **NEGATIVE** dataset.
@@ -408,5 +435,7 @@ if __name__ == '__main__':
     '''
 
     # Step 4a
-    create_pos_neg_datasets() # NOTE: this will create basically another copy of the dataset, so mind the storage requirements
-    print("Next, use Qwen to create a second set of positive and negative datasets. Come back here after they have been manually checked.")
+    #create_pos_neg_datasets() # NOTE: this will create basically another copy of the dataset, so mind the storage requirements
+
+    # Step 4b
+    check_second_neg_pos_datasets()
